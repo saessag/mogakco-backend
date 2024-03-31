@@ -29,6 +29,8 @@ logging:
     org.hibernate:
       type:
         descriptor.sql: trace
+cors:
+  origin: "http://localhost:3000"
 ---
 spring:
   config:
