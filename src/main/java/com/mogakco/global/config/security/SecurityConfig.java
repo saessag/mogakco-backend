@@ -1,9 +1,11 @@
 package com.mogakco.global.config.security;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -22,10 +24,13 @@ import static org.springframework.http.HttpHeaders.*;
 import static org.springframework.http.HttpMethod.*;
 
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfig {
 
     @Value("${cors.origin}")
     private String corsOrigin;
+
+    private final Environment environment;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -37,12 +42,17 @@ public class SecurityConfig {
                         httpSecurityHeadersConfigurer.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
                 .sessionManagement(httpSecuritySessionManagementConfigurer ->
                         httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/signup", "/api/auth/login").permitAll() // 허용할 REST API
-                        .requestMatchers("/docs/*", "/actuator/*").permitAll() // spring rest docs + actuator 부분 허용
-                        .requestMatchers(PathRequest.toH2Console()).permitAll() // h2-console 허용
-                        .anyRequest().authenticated()
-                );
+                .authorizeHttpRequests(auth -> {
+                    auth
+                            .requestMatchers("/api/auth/signup", "/api/auth/login").permitAll() // 허용할 REST API
+                            .requestMatchers("/docs/*", "/actuator/*").hasRole("ADMIN"); // rest docs + actuator 부분 관리자만 접근 허용
+
+                    if (!Arrays.asList(environment.getActiveProfiles()).contains("prod")) {
+                        auth.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll(); // h2 console prod profile 외에 허용
+                    }
+
+                    auth.anyRequest().authenticated();
+                });
 
         return httpSecurity.build();
     }

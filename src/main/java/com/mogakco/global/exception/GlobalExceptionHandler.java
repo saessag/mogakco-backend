@@ -21,7 +21,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     protected ResponseEntity<ExceptionResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-        log.error("handle MethodArgumentNotValidException");
+        log.error("handle MethodArgumentNotValidException", e);
         return new ResponseEntity<>(ExceptionResponse.of(INVALID_REQUEST_PARAMETER, e.getBindingResult()),
                 INVALID_REQUEST_PARAMETER.getHttpStatus());
     }
@@ -31,7 +31,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(IllegalArgumentException.class)
     protected ResponseEntity<ExceptionResponse> handleIllegalArgumentException(IllegalArgumentException e) {
-        log.error("handle IllegalArgumentException");
+        log.error("handle IllegalArgumentException", e);
         return new ResponseEntity<>(
                 ExceptionResponse.of(INVALID_REQUEST_PARAMETER, e.getMessage()),
                 INVALID_REQUEST_PARAMETER.getHttpStatus()
@@ -43,7 +43,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(BusinessException.class)
     protected ResponseEntity<ExceptionResponse> handleBusinessException(BusinessException e) {
-        log.error("handle BusinessException");
+        log.error("handle BusinessException", e);
         return new ResponseEntity<>(
                 ExceptionResponse.of(INVALID_REQUEST_PARAMETER, e.getMessage()),
                 INVALID_REQUEST_PARAMETER.getHttpStatus()
@@ -55,7 +55,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     protected ResponseEntity<ExceptionResponse> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
-        log.error("handle HttpRequestMethodNotSupportedException");
+        log.error("handle HttpRequestMethodNotSupportedException", e);
         return new ResponseEntity<>(
                 ExceptionResponse.of(INVALID_REQUEST_METHOD),
                 INVALID_REQUEST_METHOD.getHttpStatus()
@@ -67,7 +67,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(BindException.class)
     protected ResponseEntity<ExceptionResponse> handleBindException(BindException e) {
-        log.error("handle BindException");
+        log.error("handle BindException", e);
         return new ResponseEntity<>(
                 ExceptionResponse.of(INVALID_REQUEST_PARAMETER, e.getBindingResult()),
                 INVALID_REQUEST_PARAMETER.getHttpStatus()
