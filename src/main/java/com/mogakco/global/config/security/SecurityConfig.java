@@ -36,6 +36,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
+                .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource()))
                 .httpBasic(HttpBasicConfigurer::disable)
                 .formLogin(FormLoginConfigurer::disable)
                 .headers(httpSecurityHeadersConfigurer ->
@@ -48,7 +49,7 @@ public class SecurityConfig {
                             .requestMatchers("/docs/*", "/actuator/*").hasRole("ADMIN"); // rest docs + actuator 부분 관리자만 접근 허용
 
                     if (!Arrays.asList(environment.getActiveProfiles()).contains("prod")) {
-                        auth.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll(); // h2 console prod profile 외에 허용
+                        auth.requestMatchers(PathRequest.toH2Console()).permitAll(); // h2 console prod profile 외에 허용
                     }
 
                     auth.anyRequest().authenticated();
