@@ -2,6 +2,7 @@ package com.mogakco.domain.member.entity;
 
 import com.mogakco.domain.member.type.MemberStatus;
 import com.mogakco.domain.member.type.Role;
+import com.mogakco.domain.profile.entity.Profile;
 import com.mogakco.global.common.audit.entity.BaseDateTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -15,6 +16,7 @@ import org.hibernate.type.SqlTypes;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AttributeOverride(name = "createdAt", column = @Column(name = "joined_at", nullable = false, updatable = false))
 public class Member extends BaseDateTimeEntity {
 
     @Id
@@ -51,6 +53,11 @@ public class Member extends BaseDateTimeEntity {
     @JdbcTypeCode(SqlTypes.VARCHAR)
     private Role role;
 
+    @Comment("회원 프로필")
+    @JoinColumn(name = "profile_id", nullable = false)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Profile profile;
+
     @Builder
     public Member(String name, String nickname, String email, String password) {
         this.name = name;
@@ -59,5 +66,6 @@ public class Member extends BaseDateTimeEntity {
         this.password = password;
         this.memberStatus = MemberStatus.ACTIVE;
         this.role = Role.GUEST;
+        this.profile = Profile.builder().build();
     }
 }
