@@ -12,4 +12,9 @@ public class CITest {
     public void test() {
         assertThat(1 + 1).isEqualTo(2);
     }
+
+    @Test
+    public void failingTest() {
+        assertThat(1 + 1).isEqualTo(1);
+    }
 }
