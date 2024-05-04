@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum MemberStatus implements EnumType {
-    DORMANT("휴먼 회원"),
+    DORMANT("휴면 회원"),
     ACTIVE("활성화 회원"),
     BAN("차단 회원"),
     WITHDRAW("탈퇴 회원");
