@@ -1,8 +1,12 @@
 package com.mogakco.domain.member.entity;
 
+import com.mogakco.domain.apply.entity.ApplyPost;
+import com.mogakco.domain.apply.entity.ApplyRecord;
+import com.mogakco.domain.apply.entity.InvitationRecord;
 import com.mogakco.domain.member.type.MemberStatus;
 import com.mogakco.domain.member.type.Role;
 import com.mogakco.domain.profile.entity.Profile;
+import com.mogakco.domain.reply.entity.Reply;
 import com.mogakco.global.common.audit.entity.BaseDateTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -12,6 +16,9 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Entity
 @Getter
@@ -58,6 +65,22 @@ public class Member extends BaseDateTimeEntity {
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Profile profile;
 
+    @Comment("작성한 모집글")
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ApplyPost> applyPosts = new CopyOnWriteArrayList<>();
+
+    @Comment("작성한 댓글")
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Reply> replies = new CopyOnWriteArrayList<>();
+
+    @Comment("모집에 신청한 내역")
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ApplyRecord> applyRecords = new CopyOnWriteArrayList<>();
+
+    @Comment("초대 수취 내역")
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<InvitationRecord> invitationRecords = new CopyOnWriteArrayList<>();
+
     @Builder
     public Member(String name, String nickname, String email, String password) {
         this.name = name;
@@ -68,4 +91,5 @@ public class Member extends BaseDateTimeEntity {
         this.role = Role.GUEST;
         this.profile = Profile.builder().build();
     }
+
 }
