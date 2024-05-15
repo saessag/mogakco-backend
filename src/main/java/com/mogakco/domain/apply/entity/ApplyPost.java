@@ -2,8 +2,6 @@ package com.mogakco.domain.apply.entity;
 
 import com.mogakco.domain.apply.type.SelectMethod;
 import com.mogakco.domain.apply.type.Status;
-import com.mogakco.domain.group.entity.PrimaryGroup;
-import com.mogakco.domain.group.entity.SecondaryGroup;
 import com.mogakco.domain.reply.entity.Reply;
 import com.mogakco.global.common.audit.entity.BaseDateTimeEntity;
 import jakarta.persistence.*;
@@ -18,13 +16,15 @@ import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLDelete(sql = "UPDATE apply_post SET deleted = true WHERE id = ?")
+@SQLDelete(sql = "UPDATE apply_post SET deleted = true WHERE apply_post_id = ?")
 @SQLRestriction("deleted = false")
 public class ApplyPost extends BaseDateTimeEntity {
 
@@ -39,8 +39,9 @@ public class ApplyPost extends BaseDateTimeEntity {
     private String title;
 
     @Comment("모집 글 내용")
-    @Column(nullable = false, length = 4096)
-    private String text;
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "apply_post_content_id")
+    private ApplyPostContent applyPostContent;
 
     @Comment("모집 시작 시간")
     @Column(nullable = false)
@@ -58,10 +59,6 @@ public class ApplyPost extends BaseDateTimeEntity {
     @Column(nullable = false)
     private LocalDateTime projectEndDatetime;
 
-    @Comment("모각코 모임 url, 오픈카톡, discord, etc 링크")
-    @Column(nullable = false, length = 2048)
-    private String projectUrl;
-
     @Comment("모집 방식")
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -78,19 +75,13 @@ public class ApplyPost extends BaseDateTimeEntity {
     @JdbcTypeCode(SqlTypes.VARCHAR)
     private Status status;
 
-    @Comment("대분류")
-    @ManyToOne
-    @JoinColumn(name = "primary_group_id", nullable = false)
-    private PrimaryGroup primaryGroup;
-
-    @Comment("소분류")
-    @ManyToOne
-    @JoinColumn(name = "secondary_group_id", nullable = false)
-    private SecondaryGroup secondaryGroup;
+    @Comment("분류")
+    @OneToMany(mappedBy = "applyPost", fetch = FetchType.LAZY)
+    private List<ApplyPost_Category> applyPostCategories = Collections.synchronizedList(new ArrayList<>());
 
     @Comment("댓글")
     @OneToMany(mappedBy = "applyPost", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Reply> replies = new CopyOnWriteArrayList<>();
+    private List<Reply> replies = Collections.synchronizedList(new ArrayList<>());
 
     @Comment("삭제 여부")
     private boolean deleted;
@@ -104,18 +95,19 @@ public class ApplyPost extends BaseDateTimeEntity {
     private List<InvitationRecord> invitationRecords = new CopyOnWriteArrayList<>();
 
     @Builder
-    public ApplyPost(String title, String text, LocalDateTime applyBeginDatetime, LocalDateTime applyEndDateTime, LocalDateTime projectBeginDatetime, LocalDateTime projectEndDatetime, String projectUrl, SelectMethod selectMethod, boolean visible, Status status, PrimaryGroup primaryGroup, SecondaryGroup secondaryGroup) {
+    public ApplyPost(String title, ApplyPostContent applyPostContent, LocalDateTime applyBeginDatetime, LocalDateTime applyEndDateTime, LocalDateTime projectBeginDatetime, LocalDateTime projectEndDatetime, SelectMethod selectMethod, boolean visible, Status status, List<ApplyPost_Category> applyPostCategories, List<Reply> replies, List<ApplyRecord> applyRecords, List<InvitationRecord> invitationRecords) {
         this.title = title;
-        this.text = text;
+        this.applyPostContent = applyPostContent;
         this.applyBeginDatetime = applyBeginDatetime;
         this.applyEndDateTime = applyEndDateTime;
         this.projectBeginDatetime = projectBeginDatetime;
         this.projectEndDatetime = projectEndDatetime;
-        this.projectUrl = projectUrl;
         this.selectMethod = selectMethod;
         this.visible = visible;
         this.status = status;
-        this.primaryGroup = primaryGroup;
-        this.secondaryGroup = secondaryGroup;
+        this.applyPostCategories = applyPostCategories;
+        this.replies = replies;
+        this.applyRecords = applyRecords;
+        this.invitationRecords = invitationRecords;
     }
 }

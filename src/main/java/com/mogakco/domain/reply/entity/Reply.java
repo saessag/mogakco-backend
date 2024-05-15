@@ -55,9 +55,9 @@ public class Reply extends BaseDateTimeEntity {
     }
 
     @Builder
-    public Reply(ApplyPost applyPost, String text) {
+    public Reply(ApplyPost applyPost, String text, Reply parentReply) {
         this.applyPost = applyPost;
         this.text = text;
-        this.parentReply = null;
+        this.parentReply = parentReply;
     }
 }
