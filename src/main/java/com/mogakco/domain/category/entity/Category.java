@@ -1,6 +1,6 @@
 package com.mogakco.domain.category.entity;
 
-import com.mogakco.domain.apply.entity.ApplyPost_Category;
+import com.mogakco.domain.apply.entity.ApplyPostCategory;
 import com.mogakco.global.common.audit.entity.BaseDateTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -47,7 +47,7 @@ public class Category extends BaseDateTimeEntity {
     private Integer depth;
 
    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
-    private List<ApplyPost_Category> applyPostCategories = new ArrayList<>();
+    private List<ApplyPostCategory> applyPostCategories = new ArrayList<>();
 
    @Builder
     public Category(String title, boolean deleted, Category primaryCategory, List<Category> secondaryCategory, Integer depth) {

@@ -75,7 +75,7 @@ public class ApplyPost extends BaseDateTimeEntity {
 
     @Comment("분류")
     @OneToMany(mappedBy = "applyPost", fetch = FetchType.LAZY)
-    private List<ApplyPost_Category> applyPostCategories = new ArrayList<>();
+    private List<ApplyPostCategory> applyPostCategories = new ArrayList<>();
 
     @Comment("댓글")
     @OneToMany(mappedBy = "applyPost", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
@@ -93,7 +93,7 @@ public class ApplyPost extends BaseDateTimeEntity {
     private List<InvitationRecord> invitationRecords = new ArrayList<>();
 
     @Builder
-    public ApplyPost(String title, ApplyPostContent applyPostContent, LocalDateTime applyBeginDatetime, LocalDateTime applyEndDateTime, LocalDateTime projectBeginDatetime, LocalDateTime projectEndDatetime, SelectMethod selectMethod, boolean visible, Status status, List<ApplyPost_Category> applyPostCategories, List<Reply> replies, List<ApplyRecord> applyRecords, List<InvitationRecord> invitationRecords) {
+    public ApplyPost(String title, ApplyPostContent applyPostContent, LocalDateTime applyBeginDatetime, LocalDateTime applyEndDateTime, LocalDateTime projectBeginDatetime, LocalDateTime projectEndDatetime, SelectMethod selectMethod, boolean visible, Status status, List<ApplyPostCategory> applyPostCategories, List<Reply> replies, List<ApplyRecord> applyRecords, List<InvitationRecord> invitationRecords) {
         this.title = title;
         this.applyPostContent = applyPostContent;
         this.applyBeginDatetime = applyBeginDatetime;

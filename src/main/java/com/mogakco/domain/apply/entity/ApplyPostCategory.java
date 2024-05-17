@@ -15,7 +15,7 @@ import org.hibernate.annotations.SQLRestriction;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "UPDATE apply_post_category SET deleted = true WHERE apply_post_category_id = ?")
 @SQLRestriction("deleted = false")
-public class ApplyPost_Category {
+public class ApplyPostCategory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,7 +35,7 @@ public class ApplyPost_Category {
     private boolean deleted;
 
     @Builder
-    public ApplyPost_Category(ApplyPost applyPost, Category category) {
+    public ApplyPostCategory(ApplyPost applyPost, Category category) {
         this.applyPost = applyPost;
         this.category = category;
     }
