@@ -11,8 +11,8 @@ import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -47,7 +47,7 @@ public class Reply extends BaseDateTimeEntity {
 
     @Comment("대댓글(답글, 자식 답글)")
     @OneToMany(mappedBy = "parentReply", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Reply> nestedReply = new CopyOnWriteArrayList<>();
+    private List<Reply> nestedReply = new ArrayList<>();
 
     public void setParentReply(Reply reply) {
         this.parentReply = reply;

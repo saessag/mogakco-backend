@@ -12,9 +12,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 @Entity
 @Getter
@@ -43,13 +41,13 @@ public class Category extends BaseDateTimeEntity {
 
     @Comment("소분류")
     @OneToMany(mappedBy = "primaryCategory", cascade = CascadeType.ALL)
-    private List<Category> secondaryCategory = new CopyOnWriteArrayList<>();
+    private List<Category> secondaryCategory = new ArrayList<>();
 
    @Comment("분류 깊이(depth)")
     private Integer depth;
 
    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
-    private List<ApplyPost_Category> applyPostCategories = Collections.synchronizedList(new ArrayList<>());
+    private List<ApplyPost_Category> applyPostCategories = new ArrayList<>();
 
    @Builder
     public Category(String title, boolean deleted, Category primaryCategory, List<Category> secondaryCategory, Integer depth) {

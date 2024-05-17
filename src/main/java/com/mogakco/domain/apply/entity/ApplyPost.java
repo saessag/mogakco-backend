@@ -17,9 +17,7 @@ import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 @Entity
 @Getter
@@ -77,22 +75,22 @@ public class ApplyPost extends BaseDateTimeEntity {
 
     @Comment("분류")
     @OneToMany(mappedBy = "applyPost", fetch = FetchType.LAZY)
-    private List<ApplyPost_Category> applyPostCategories = Collections.synchronizedList(new ArrayList<>());
+    private List<ApplyPost_Category> applyPostCategories = new ArrayList<>();
 
     @Comment("댓글")
     @OneToMany(mappedBy = "applyPost", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Reply> replies = Collections.synchronizedList(new ArrayList<>());
+    private List<Reply> replies = new ArrayList<>();
 
     @Comment("삭제 여부")
     private boolean deleted;
 
     @Comment("모집글에 대한 신청 내역")
     @OneToMany(mappedBy = "applyPost", fetch = FetchType.LAZY)
-    private List<ApplyRecord> applyRecords = new CopyOnWriteArrayList<>();
+    private List<ApplyRecord> applyRecords = new ArrayList<>();
 
     @Comment("모집글에 대한 초대 내역")
     @OneToMany(mappedBy = "applyPost", fetch = FetchType.LAZY)
-    private List<InvitationRecord> invitationRecords = new CopyOnWriteArrayList<>();
+    private List<InvitationRecord> invitationRecords = new ArrayList<>();
 
     @Builder
     public ApplyPost(String title, ApplyPostContent applyPostContent, LocalDateTime applyBeginDatetime, LocalDateTime applyEndDateTime, LocalDateTime projectBeginDatetime, LocalDateTime projectEndDatetime, SelectMethod selectMethod, boolean visible, Status status, List<ApplyPost_Category> applyPostCategories, List<Reply> replies, List<ApplyRecord> applyRecords, List<InvitationRecord> invitationRecords) {
