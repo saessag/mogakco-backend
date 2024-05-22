@@ -35,3 +35,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Q File ###
+/src/main/generated/
