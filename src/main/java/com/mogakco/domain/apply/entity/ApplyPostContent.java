@@ -26,15 +26,15 @@ public class ApplyPostContent extends BaseDateTimeEntity {
     private String text;
 
     @Comment("모각코 모임 url, 오픈카톡, discord, etc 링크 1")
-    @Column(nullable = false)
+    @Column(nullable = false, length = 2083)
     private String projectUrl1;
 
     @Comment("모각코 모임 url, 오픈카톡, discord, etc 링크 2")
-    @Column(nullable = false)
+    @Column(length = 2083)
     private String projectUrl2;
 
     @Comment("모각코 모임 url, 오픈카톡, discord, etc 링크 3")
-    @Column(nullable = false)
+    @Column(length = 2083)
     private String projectUrl3;
 
     @Builder
