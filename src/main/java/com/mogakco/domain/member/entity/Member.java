@@ -1,5 +1,6 @@
 package com.mogakco.domain.member.entity;
 
+import com.mogakco.domain.member.part.Address;
 import com.mogakco.domain.member.type.MemberStatus;
 import com.mogakco.domain.member.type.Role;
 import com.mogakco.domain.profile.entity.Profile;
@@ -41,6 +42,14 @@ public class Member extends BaseDateTimeEntity {
     @Column(nullable = false)
     private String password;
 
+    @Comment("회원 휴대전화번호")
+    @Column(nullable = false, unique = true)
+    private String phoneNumber;
+
+    @Embedded
+    @Comment("회원 주소")
+    private Address address;
+
     @Comment("회원 상태")
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -59,11 +68,12 @@ public class Member extends BaseDateTimeEntity {
     private Profile profile;
 
     @Builder
-    public Member(String name, String nickname, String email, String password) {
+    public Member(String name, String nickname, String email, String password, String phoneNumber) {
         this.name = name;
         this.nickname = nickname;
         this.email = email;
         this.password = password;
+        this.phoneNumber = phoneNumber;
         this.memberStatus = MemberStatus.ACTIVE;
         this.role = Role.GUEST;
         this.profile = Profile.builder().build();
