@@ -14,6 +14,8 @@ import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import java.time.LocalDate;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -46,6 +48,10 @@ public class Member extends BaseDateTimeEntity {
     @Column(nullable = false, unique = true)
     private String phoneNumber;
 
+    @Comment("회원 생일")
+    @Column(nullable = false, updatable = false)
+    private LocalDate birthday;
+
     @Embedded
     @Comment("회원 주소")
     private Address address;
@@ -68,12 +74,13 @@ public class Member extends BaseDateTimeEntity {
     private Profile profile;
 
     @Builder
-    public Member(String name, String nickname, String email, String password, String phoneNumber) {
+    public Member(String name, String nickname, String email, String password, String phoneNumber, LocalDate birthday) {
         this.name = name;
         this.nickname = nickname;
         this.email = email;
         this.password = password;
         this.phoneNumber = phoneNumber;
+        this.birthday = birthday;
         this.memberStatus = MemberStatus.ACTIVE;
         this.role = Role.GUEST;
         this.profile = Profile.builder().build();
