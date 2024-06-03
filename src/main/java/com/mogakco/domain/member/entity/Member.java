@@ -33,7 +33,7 @@ public class Member extends BaseDateTimeEntity {
     private String name;
 
     @Comment("회원 닉네임")
-    @Column(nullable = false, unique = true)
+    @Column(length = 8, nullable = false, unique = true)
     private String nickname;
 
     @Comment("회원 이메일")

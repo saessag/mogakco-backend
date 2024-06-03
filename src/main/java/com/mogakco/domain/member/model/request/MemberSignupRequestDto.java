@@ -3,7 +3,6 @@ package com.mogakco.domain.member.model.request;
 import com.mogakco.domain.member.entity.Member;
 import com.mogakco.global.exception.custom.BusinessException;
 import jakarta.validation.constraints.*;
-import org.hibernate.validator.constraints.Length;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -15,7 +14,7 @@ public record MemberSignupRequestDto(
         String name,
 
         @NotBlank(message = "닉네임은 필수 입력 값입니다.")
-        @Length(max = 8, message = "닉네임은 최대 8글자까지 가능합니다.")
+        @Size(max = 8, message = "닉네임은 최대 8글자까지 가능합니다.")
         String nickname,
 
         @NotBlank(message = "이메일은 필수 입력 값입니다.")
@@ -24,12 +23,12 @@ public record MemberSignupRequestDto(
 
         @NotBlank(message = "비밀번호는 필수 입력 값입니다.")
         @Pattern(regexp = "^(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]).{8,}$",
-                message = "비밀번호는 8글자이며 적어도 1개 이상의 특수문자를 포함해야 합니다.")
+                message = "비밀번호는 8글자이상이며 적어도 1개 이상의 특수문자를 포함해야 합니다.")
         String password,
 
-        @NotBlank(message = "비밀번호는 필수 입력 값입니다.")
+        @NotBlank(message = "비밀번호(확인)은 필수 입력 값입니다.")
         @Pattern(regexp = "^(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]).{8,}$",
-                message = "비밀번호는 8글자이며 적어도 1개 이상의 특수문자를 포함해야 합니다.")
+                message = "비밀번호를 재입력해야 합니다.")
         String confirmPassword,
 
         @NotBlank(message = "전화번호는 필수 입력 값입니다.")
