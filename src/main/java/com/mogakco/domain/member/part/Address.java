@@ -1,4 +1,4 @@
-package com.mogakco.domain.profile.part;
+package com.mogakco.domain.member.part;
 
 import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;

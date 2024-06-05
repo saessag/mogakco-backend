@@ -1,6 +1,5 @@
 package com.mogakco.domain.profile.entity;
 
-import com.mogakco.domain.profile.part.Address;
 import com.mogakco.global.common.audit.entity.BaseDateTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -39,16 +38,11 @@ public class Profile extends BaseDateTimeEntity {
     @CollectionTable(name = "profile_urls", joinColumns = @JoinColumn(name = "profile_id"))
     private Set<String> urls = new HashSet<>();
 
-    @Embedded
-    @Comment("회원 주소")
-    private Address address;
-
     @Builder
-    public Profile(String profileImage, String bio, String occupation, Set<String> urls, Address address) {
+    public Profile(String profileImage, String bio, String occupation, Set<String> urls) {
         this.profileImage = profileImage;
         this.bio = bio;
         this.occupation = occupation;
         this.urls = urls;
-        this.address = address;
     }
 }
