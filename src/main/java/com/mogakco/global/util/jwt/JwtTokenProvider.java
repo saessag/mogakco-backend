@@ -30,7 +30,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 @RequiredArgsConstructor
 public class JwtTokenProvider {
 
-    @Value("${jwt.secret}")
+    @Value("${SALT}")
     private String salt;
 
     private Key secretKey;
@@ -39,11 +39,11 @@ public class JwtTokenProvider {
 
     private final Aes256EncryptionUtil aes256EncryptionUtil;
 
-    public static final String ACCESS_TOKEN_INITIAL = "AT_";
+    public static final String ACCESS_TOKEN_INITIAL = "AT";
 
     public static final long ACCESS_TOKEN_EXPIRED_TIME = 1000 * 60 * 60 * 2;
 
-    public static final String REFRESH_TOKEN_INITIAL = "RT_";
+    public static final String REFRESH_TOKEN_INITIAL = "RT";
 
     public static final long REFRESH_TOKEN_EXPIRED_TIME = 1000 * 60 * 60 * 24 * 14;
 

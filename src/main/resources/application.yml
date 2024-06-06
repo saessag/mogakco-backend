@@ -47,7 +47,3 @@ spring:
   threads:
     virtual:
       enabled: true
-jwt:
-  secret: ${SALT}
-encryption:
-  key: ${AES_KEY}

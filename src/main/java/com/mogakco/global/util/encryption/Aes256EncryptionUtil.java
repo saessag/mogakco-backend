@@ -17,7 +17,7 @@ public class Aes256EncryptionUtil {
     private static final String ALGORITHM = "AES";
     private static final String TRANSFORMATION = "AES/ECB/PKCS5Padding";
 
-    @Value("${encryption.key}")
+    @Value("${AES_KEY}")
     private String aesKey;  // 이제 여기에 환경 변수 값을 주입받습니다.
 
     public String encrypt(String data) {
