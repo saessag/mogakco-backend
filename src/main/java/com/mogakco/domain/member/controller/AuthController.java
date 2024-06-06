@@ -1,8 +1,10 @@
 package com.mogakco.domain.member.controller;
 
+import com.mogakco.domain.member.model.request.MemberLoginRequestDto;
 import com.mogakco.domain.member.model.request.MemberSignupRequestDto;
 import com.mogakco.domain.member.service.AuthService;
 import com.mogakco.global.response.success.SuccessCommonApiResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -28,5 +30,15 @@ public class AuthController {
         SuccessCommonApiResponse response = SuccessCommonApiResponse.of("회원가입이 정상적으로 처리되었습니다.");
 
         return ResponseEntity.created(createdUri).body(response);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<SuccessCommonApiResponse> login(@Valid @RequestBody MemberLoginRequestDto requestDto,
+                                                          HttpServletResponse response) {
+        this.authService.login(requestDto, response);
+
+        SuccessCommonApiResponse apiResponse = SuccessCommonApiResponse.of("로그인이 정상적으로 처리되었습니다.");
+
+        return ResponseEntity.ok(apiResponse);
     }
 }
