@@ -72,7 +72,7 @@ public class SecurityConfig {
 
         corsConfiguration.addAllowedOriginPattern(corsOrigin); // FE domain 허용
         corsConfiguration.setAllowedMethods(Arrays.asList(GET.name(), POST.name(), PUT.name(), PATCH.name(), DELETE.name())); // Http Method 허용
-        corsConfiguration.setAllowedHeaders(Arrays.asList(AUTHORIZATION, CONTENT_TYPE, CACHE_CONTROL)); // 특정 Http Headers 허용
+        corsConfiguration.setAllowedHeaders(Arrays.asList(AUTHORIZATION, CONTENT_TYPE, CACHE_CONTROL, SET_COOKIE)); // 특정 Http Headers 허용
         corsConfiguration.setAllowCredentials(true); // credential 허용
 
         UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
