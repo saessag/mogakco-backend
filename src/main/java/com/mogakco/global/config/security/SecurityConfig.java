@@ -20,6 +20,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static org.springframework.http.HttpHeaders.*;
 import static org.springframework.http.HttpMethod.*;
@@ -33,6 +34,8 @@ public class SecurityConfig {
 
     private final Environment environment;
 
+    public static final List<String> WHITE_LIST = Arrays.asList("/api/auth/signup", "/api/auth/login");
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
@@ -45,9 +48,9 @@ public class SecurityConfig {
                 .sessionManagement(httpSecuritySessionManagementConfigurer ->
                         httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> {
-                    auth
-                            .requestMatchers("/api/auth/signup", "/api/auth/login").permitAll() // 허용할 REST API
-                            .requestMatchers("/docs/*", "/actuator/*").hasRole("ADMIN"); // rest docs + actuator 부분 관리자만 접근 허용
+                    WHITE_LIST.forEach(url -> auth.requestMatchers(url).permitAll());
+
+                    auth.requestMatchers("/docs/*", "/actuator/*").hasRole("ADMIN"); // rest docs + actuator 부분 관리자만 접근 허용
 
                     if (!Arrays.asList(environment.getActiveProfiles()).contains("prod")) {
                         auth.requestMatchers(PathRequest.toH2Console()).permitAll(); // h2 console prod profile 외에 허용
