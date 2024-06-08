@@ -36,5 +36,6 @@ out/
 ### VS Code ###
 .vscode/
 
-### Q File ###
-/src/main/generated/
+### .env ###
+.env
+src/test/resources/test-environment.yml

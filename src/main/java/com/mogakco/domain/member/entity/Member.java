@@ -1,5 +1,6 @@
 package com.mogakco.domain.member.entity;
 
+import com.mogakco.domain.member.part.Address;
 import com.mogakco.domain.member.type.MemberStatus;
 import com.mogakco.domain.member.type.Role;
 import com.mogakco.domain.profile.entity.Profile;
@@ -12,6 +13,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+
+import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -30,7 +33,7 @@ public class Member extends BaseDateTimeEntity {
     private String name;
 
     @Comment("회원 닉네임")
-    @Column(nullable = false, unique = true)
+    @Column(length = 8, nullable = false, unique = true)
     private String nickname;
 
     @Comment("회원 이메일")
@@ -40,6 +43,18 @@ public class Member extends BaseDateTimeEntity {
     @Comment("회원 비밀번호")
     @Column(nullable = false)
     private String password;
+
+    @Comment("회원 휴대전화번호")
+    @Column(nullable = false, unique = true)
+    private String phoneNumber;
+
+    @Comment("회원 생일")
+    @Column(nullable = false, updatable = false)
+    private LocalDate birthday;
+
+    @Embedded
+    @Comment("회원 주소")
+    private Address address;
 
     @Comment("회원 상태")
     @Column(nullable = false)
@@ -59,11 +74,13 @@ public class Member extends BaseDateTimeEntity {
     private Profile profile;
 
     @Builder
-    public Member(String name, String nickname, String email, String password) {
+    public Member(String name, String nickname, String email, String password, String phoneNumber, LocalDate birthday) {
         this.name = name;
         this.nickname = nickname;
         this.email = email;
         this.password = password;
+        this.phoneNumber = phoneNumber;
+        this.birthday = birthday;
         this.memberStatus = MemberStatus.ACTIVE;
         this.role = Role.GUEST;
         this.profile = Profile.builder().build();

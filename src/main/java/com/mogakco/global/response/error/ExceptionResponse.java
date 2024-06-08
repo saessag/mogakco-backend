@@ -1,5 +1,6 @@
 package com.mogakco.global.response.error;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.mogakco.global.exception.ExceptionCode;
 import com.mogakco.global.exception.ValidationException;
 import lombok.AccessLevel;
@@ -22,6 +23,7 @@ public class ExceptionResponse {
 
     private String code;
 
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<ValidationException> errors;
 
     private LocalDateTime timestamp;
@@ -31,7 +33,6 @@ public class ExceptionResponse {
         this.status = exceptionCode.getHttpStatus();
         this.code = exceptionCode.getCode();
         this.timestamp = LocalDateTime.now();
-        this.errors = new ArrayList<>();
     }
 
     private ExceptionResponse(final ExceptionCode exceptionCode, final String message) {
@@ -39,7 +40,6 @@ public class ExceptionResponse {
         this.status = exceptionCode.getHttpStatus();
         this.code = exceptionCode.getCode();
         this.timestamp = LocalDateTime.now();
-        this.errors = new ArrayList<>();
     }
 
     private ExceptionResponse(final ExceptionCode errorCode, final List<ValidationException> errors) {
