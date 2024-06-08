@@ -8,10 +8,12 @@ import com.mogakco.global.exception.custom.BusinessException;
 import com.mogakco.global.util.jwt.JwtTokenProvider;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static com.mogakco.global.util.cookie.CookieUtil.deleteCookie;
 import static com.mogakco.global.util.cookie.CookieUtil.setCookie;
 import static com.mogakco.global.util.jwt.JwtTokenProvider.*;
 import static org.springframework.http.HttpHeaders.SET_COOKIE;
@@ -40,6 +42,11 @@ public class AuthService {
         this.memberRepository.save(member);
     }
 
+    /**
+     * 로그인 로직
+     * @param requestDto
+     * @param response
+     */
     public void login(MemberLoginRequestDto requestDto, HttpServletResponse response) {
         Member member = this.memberRepository.findByEmail(requestDto.email()).orElseThrow(() -> new BusinessException("이메일 혹은 비밀번호가 일치하지 않습니다."));
 
@@ -52,6 +59,17 @@ public class AuthService {
 
         setCookie(ACCESS_TOKEN_INITIAL, SET_COOKIE, accessToken, ACCESS_TOKEN_EXPIRED_TIME, response);
         setCookie(REFRESH_TOKEN_INITIAL, SET_COOKIE, refreshToken, REFRESH_TOKEN_EXPIRED_TIME, response);
+    }
+
+    /**
+     * 로그아웃 비즈니스 로직
+     * @param response
+     */
+    public void logout(HttpServletResponse response) {
+        deleteCookie(ACCESS_TOKEN_INITIAL, response);
+        deleteCookie(REFRESH_TOKEN_INITIAL, response);
+
+        SecurityContextHolder.clearContext();
     }
 
     /**
