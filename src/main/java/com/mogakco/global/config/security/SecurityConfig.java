@@ -1,5 +1,9 @@
 package com.mogakco.global.config.security;
 
+import com.mogakco.global.util.jwt.JwtTokenProvider;
+import com.mogakco.global.util.jwt.entry.CustomAuthenticationEntryPoint;
+import com.mogakco.global.util.jwt.filter.CustomJwtAuthenticationFilter;
+import com.mogakco.global.util.jwt.handler.CustomAccessDeniedHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -15,6 +19,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -33,6 +38,12 @@ public class SecurityConfig {
     private String corsOrigin;
 
     private final Environment environment;
+
+    private final JwtTokenProvider jwtTokenProvider;
+
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
+
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
     public static final List<String> WHITE_LIST = Arrays.asList("/api/auth/signup", "/api/auth/login");
 
@@ -59,7 +70,13 @@ public class SecurityConfig {
                     auth.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll();
 
                     auth.anyRequest().authenticated();
-                });
+                })
+                .exceptionHandling(
+                        httpSecurityExceptionHandlingConfigurer -> httpSecurityExceptionHandlingConfigurer
+                                .authenticationEntryPoint(customAuthenticationEntryPoint)
+                                .accessDeniedHandler(customAccessDeniedHandler)
+                )
+                .addFilterBefore(new CustomJwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
 
         return httpSecurity.build();
     }
