@@ -4,6 +4,7 @@ import com.mogakco.domain.member.model.request.MemberLoginRequestDto;
 import com.mogakco.domain.member.model.request.MemberSignupRequestDto;
 import com.mogakco.global.controller.BaseControllerTest;
 import com.mogakco.global.exception.GlobalExceptionCode;
+import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -14,15 +15,17 @@ import org.springframework.http.MediaType;
 import java.time.LocalDate;
 import java.util.stream.Stream;
 
+import static com.mogakco.global.util.TestAuthUtil.performLoginAndGetCookies;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.startsWith;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.http.HttpHeaders.SET_COOKIE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 class AuthControllerTest extends BaseControllerTest {
+
+
 
     @Test
     @DisplayName("회원가입 통합 테스트 - 실패(잘못된 입력값)")
@@ -142,6 +145,34 @@ class AuthControllerTest extends BaseControllerTest {
                 .andExpect(header().exists(SET_COOKIE))
                 .andExpect(header().stringValues(SET_COOKIE, hasItem(startsWith("AT="))))
                 .andExpect(header().stringValues(SET_COOKIE, hasItem(startsWith("RT="))));
+    }
+
+    @Test
+    @DisplayName("로그아웃 통합 테스트 - 실패(인증되지 않은 사용자)")
+    void member_logout_integration_test_fail_caused_by_unauthenticated_member() throws Exception {
+        this.mockMvc.perform(post("/api/auth/logout")
+                        .contentType(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+                        .accept(MediaType.APPLICATION_JSON + ";charset=UTF-8"))
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("로그아웃 통합 테스트 - 성공")
+    void member_logout_integration_test_success() throws Exception {
+        Cookie[] cookies = performLoginAndGetCookies(this.mockMvc, this.objectMapper);
+
+        this.mockMvc.perform(post("/api/auth/logout")
+                        .contentType(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+                        .accept(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+                        .cookie(cookies))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(status().isOk())
+                .andExpect(header().exists(SET_COOKIE))
+                .andExpect(header().stringValues(SET_COOKIE, hasItem(startsWith("AT=;"))))
+                .andExpect(header().stringValues(SET_COOKIE, hasItem(startsWith("RT=;"))))
+                .andExpect(jsonPath("message").exists());
     }
 
     private static Stream<Arguments> providedTestDataForSignup() {
