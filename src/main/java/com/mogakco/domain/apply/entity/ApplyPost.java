@@ -47,7 +47,7 @@ public class ApplyPost extends BaseDateTimeEntity {
 
     @Comment("모집 종료 시간")
     @Column(nullable = false)
-    private LocalDateTime applyEndDateTime;
+    private LocalDateTime applyEndDatetime;
 
     @Comment("모각코 시작 시간")
     @Column(nullable = false)
@@ -65,7 +65,7 @@ public class ApplyPost extends BaseDateTimeEntity {
 
     @Comment("공개 여부")
     @Column(nullable = false)
-    private boolean visible;
+    private boolean visible = true;
 
     @Comment("모집 상태")
     @Column(nullable = false)
@@ -93,11 +93,11 @@ public class ApplyPost extends BaseDateTimeEntity {
     private List<InvitationRecord> invitationRecords = new ArrayList<>();
 
     @Builder
-    public ApplyPost(String title, ApplyPostContent applyPostContent, LocalDateTime applyBeginDatetime, LocalDateTime applyEndDateTime, LocalDateTime projectBeginDatetime, LocalDateTime projectEndDatetime, SelectMethod selectMethod, boolean visible, Status status, List<ApplyPostCategory> applyPostCategories, List<Reply> replies, List<ApplyRecord> applyRecords, List<InvitationRecord> invitationRecords) {
+    public ApplyPost(String title, ApplyPostContent applyPostContent, LocalDateTime applyBeginDatetime, LocalDateTime applyEndDatetime, LocalDateTime projectBeginDatetime, LocalDateTime projectEndDatetime, SelectMethod selectMethod, boolean visible, Status status, List<ApplyPostCategory> applyPostCategories, List<Reply> replies, List<ApplyRecord> applyRecords, List<InvitationRecord> invitationRecords) {
         this.title = title;
         this.applyPostContent = applyPostContent;
         this.applyBeginDatetime = applyBeginDatetime;
-        this.applyEndDateTime = applyEndDateTime;
+        this.applyEndDatetime = applyEndDatetime;
         this.projectBeginDatetime = projectBeginDatetime;
         this.projectEndDatetime = projectEndDatetime;
         this.selectMethod = selectMethod;
@@ -108,4 +108,17 @@ public class ApplyPost extends BaseDateTimeEntity {
         this.applyRecords = applyRecords;
         this.invitationRecords = invitationRecords;
     }
+
+    public void updateApplyPost(String title, ApplyPostContent applyPostContent, LocalDateTime applyBeginDatetime, LocalDateTime applyEndDatetime, LocalDateTime projectBeginDatetime, LocalDateTime projectEndDatetime, SelectMethod selectMethod, Status status, List<ApplyPostCategory> applyPostCategories) {
+        this.title = title;
+        this.applyPostContent = applyPostContent;
+        this.applyBeginDatetime = applyBeginDatetime;
+        this.applyEndDatetime = applyEndDatetime;
+        this.projectBeginDatetime = projectBeginDatetime;
+        this.projectEndDatetime = projectEndDatetime;
+        this.selectMethod = selectMethod;
+        this.status = status;
+        this.applyPostCategories = applyPostCategories;
+    }
+
 }

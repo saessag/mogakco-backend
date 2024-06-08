@@ -7,8 +7,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Getter
@@ -25,23 +23,32 @@ public class ApplyPostContent extends BaseDateTimeEntity {
     @Column(nullable = false)
     private String text;
 
-    @Comment("모각코 모임 url, 오픈카톡, discord, etc 링크 1")
-    @Column(nullable = false, length = 2083)
-    private String projectUrl1;
-
-    @Comment("모각코 모임 url, 오픈카톡, discord, etc 링크 2")
+    @Comment("모각코 모임 url 오픈카톡")
     @Column(length = 2083)
-    private String projectUrl2;
+    private String projectUrlKaKaoTalk;
 
-    @Comment("모각코 모임 url, 오픈카톡, discord, etc 링크 3")
+    @Comment("모각코 모임 url discord")
     @Column(length = 2083)
-    private String projectUrl3;
+    private String projectUrlDiscord;
+
+    @Comment("모각코 모임 url 기타")
+    @Column(length = 2083)
+    private String projectUrlEtc;
 
     @Builder
-    public ApplyPostContent(String text, String projectUrl1, String projectUrl2, String projectUrl3) {
+    public ApplyPostContent(String text, String projectUrlKaKaoTalk, String projectUrlDiscord, String projectUrlEtc) {
         this.text = text;
-        this.projectUrl1 = projectUrl1;
-        this.projectUrl2 = projectUrl2;
-        this.projectUrl3 = projectUrl3;
+        this.projectUrlKaKaoTalk = projectUrlKaKaoTalk;
+        this.projectUrlDiscord = projectUrlDiscord;
+        this.projectUrlEtc = projectUrlEtc;
     }
+
+    public void updateApplyPostContent(String text, String projectUrlKaKaoTalk, String projectUrlDiscord, String projectUrlEtc) {
+        this.text = text;
+        this.projectUrlKaKaoTalk = projectUrlKaKaoTalk;
+        this.projectUrlDiscord = projectUrlDiscord;
+        this.projectUrlEtc = projectUrlEtc;
+    }
+
+
 }
