@@ -99,7 +99,8 @@ public class JwtTokenProvider {
         }
     }
 
-    private String getMemberPK(String token) {
-        return this.aes256EncryptionUtil.decrypt(Jwts.parserBuilder().setSigningKey(this.secretKey).build().parseClaimsJws(token).getBody().getSubject());
+    public String getMemberPK(String token) {
+        String subject = Jwts.parserBuilder().setSigningKey(this.secretKey).build().parseClaimsJws(token).getBody().getSubject();
+        return this.aes256EncryptionUtil.decrypt(subject);
     }
 }

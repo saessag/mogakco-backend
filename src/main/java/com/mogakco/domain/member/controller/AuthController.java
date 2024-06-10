@@ -41,4 +41,13 @@ public class AuthController {
 
         return ResponseEntity.ok(apiResponse);
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<SuccessCommonApiResponse> logout(HttpServletResponse response) {
+        this.authService.logout(response);
+
+        SuccessCommonApiResponse apiResponse = SuccessCommonApiResponse.of("로그아웃이 정상적으로 처리되었습니다.");
+
+        return ResponseEntity.ok(apiResponse);
+    }
 }
