@@ -1,5 +1,6 @@
 package com.mogakco.domain.member.controller;
 
+import com.mogakco.domain.member.model.request.MemberFindEmailRequestDto;
 import com.mogakco.domain.member.model.request.MemberLoginRequestDto;
 import com.mogakco.domain.member.model.request.MemberSignupRequestDto;
 import com.mogakco.global.controller.BaseControllerTest;
@@ -173,6 +174,57 @@ class AuthControllerTest extends BaseControllerTest {
                 .andExpect(header().stringValues(SET_COOKIE, hasItem(startsWith("AT=;"))))
                 .andExpect(header().stringValues(SET_COOKIE, hasItem(startsWith("RT=;"))))
                 .andExpect(jsonPath("message").exists());
+    }
+
+    @Test
+    @DisplayName("이메일 찾기 통합 테스트 - 실패(잘못된 입력값)")
+    void find_email_integration_test_fail_caused_by_wrong_input() throws Exception {
+        MemberFindEmailRequestDto requestDto = new MemberFindEmailRequestDto("010");
+
+        this.mockMvc.perform(post("/api/auth/find-email")
+                        .contentType(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+                        .accept(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+                        .content(this.objectMapper.writeValueAsString(requestDto)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message").exists())
+                .andExpect(jsonPath("status").value(GlobalExceptionCode.INVALID_REQUEST_PARAMETER.getHttpStatus().name()))
+                .andExpect(jsonPath("code").value(GlobalExceptionCode.INVALID_REQUEST_PARAMETER.getCode()))
+                .andExpect(jsonPath("errors").exists())
+                .andExpect(jsonPath("errors").isNotEmpty())
+                .andExpect(jsonPath("timestamp").exists());
+    }
+
+    @Test
+    @DisplayName("이메일 찾기 통합 테스트 - 실패(잘못된 휴대전화번호)")
+    void find_email_integration_test_fail_caused_by_not_correct_phone_number() throws Exception {
+        MemberFindEmailRequestDto requestDto = new MemberFindEmailRequestDto("010-1234-1234");
+
+        this.mockMvc.perform(post("/api/auth/find-email")
+                        .contentType(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+                        .accept(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+                        .content(this.objectMapper.writeValueAsString(requestDto)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message").exists())
+                .andExpect(jsonPath("status").value(GlobalExceptionCode.INVALID_REQUEST_PARAMETER.getHttpStatus().name()))
+                .andExpect(jsonPath("code").value(GlobalExceptionCode.INVALID_REQUEST_PARAMETER.getCode()))
+                .andExpect(jsonPath("timestamp").exists());
+    }
+
+    @Test
+    @DisplayName("이메일 찾기 통합 테스트 - 성공")
+    void find_email_integration_test_success() throws Exception {
+        MemberFindEmailRequestDto requestDto = new MemberFindEmailRequestDto("010-1111-1111");
+
+        this.mockMvc.perform(post("/api/auth/find-email")
+                        .contentType(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+                        .accept(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+                        .content(this.objectMapper.writeValueAsString(requestDto)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("message").exists())
+                .andExpect(jsonPath("data.email").exists());
     }
 
     private static Stream<Arguments> providedTestDataForSignup() {
