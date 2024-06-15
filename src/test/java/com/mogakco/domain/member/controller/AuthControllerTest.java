@@ -21,8 +21,7 @@ import static com.mogakco.global.util.TestAuthUtil.performLoginAndGetCookies;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.startsWith;
 import static org.springframework.http.HttpHeaders.SET_COOKIE;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -372,7 +371,7 @@ class AuthControllerTest extends BaseControllerTest {
 
         MemberUpdatePasswordRequestDto requestDto = new MemberUpdatePasswordRequestDto("", "email...", "1234", "12");
 
-        this.mockMvc.perform(post("/api/auth/update-password")
+        this.mockMvc.perform(put("/api/auth/update-password")
                         .contentType(MediaType.APPLICATION_JSON + ";charset=UTF-8")
                         .accept(MediaType.APPLICATION_JSON + ";charset=UTF-8")
                         .content(this.objectMapper.writeValueAsString(requestDto)))
@@ -394,7 +393,7 @@ class AuthControllerTest extends BaseControllerTest {
 
         MemberUpdatePasswordRequestDto requestDto = new MemberUpdatePasswordRequestDto("123456", "email@email.com", "5t4r3e2w1q!", "5t4r3e2w1q!");
 
-        this.mockMvc.perform(post("/api/auth/update-password")
+        this.mockMvc.perform(put("/api/auth/update-password")
                         .contentType(MediaType.APPLICATION_JSON + ";charset=UTF-8")
                         .accept(MediaType.APPLICATION_JSON + ";charset=UTF-8")
                         .content(this.objectMapper.writeValueAsString(requestDto)))
@@ -413,7 +412,7 @@ class AuthControllerTest extends BaseControllerTest {
 
         MemberUpdatePasswordRequestDto requestDto = new MemberUpdatePasswordRequestDto("123454", "test@email.com", "5t4r3e2w1q!", "5t4r3e2w1q!");
 
-        this.mockMvc.perform(post("/api/auth/update-password")
+        this.mockMvc.perform(put("/api/auth/update-password")
                         .contentType(MediaType.APPLICATION_JSON + ";charset=UTF-8")
                         .accept(MediaType.APPLICATION_JSON + ";charset=UTF-8")
                         .content(this.objectMapper.writeValueAsString(requestDto)))
@@ -432,7 +431,7 @@ class AuthControllerTest extends BaseControllerTest {
 
         MemberUpdatePasswordRequestDto requestDto = new MemberUpdatePasswordRequestDto("123456", "test@email.com", "5t4r3e2w1q!", "5t4r3e2w1q@");
 
-        this.mockMvc.perform(post("/api/auth/update-password")
+        this.mockMvc.perform(put("/api/auth/update-password")
                         .contentType(MediaType.APPLICATION_JSON + ";charset=UTF-8")
                         .accept(MediaType.APPLICATION_JSON + ";charset=UTF-8")
                         .content(this.objectMapper.writeValueAsString(requestDto)))
@@ -451,7 +450,7 @@ class AuthControllerTest extends BaseControllerTest {
 
         MemberUpdatePasswordRequestDto requestDto = new MemberUpdatePasswordRequestDto("123456", "test@email.com", "5t4r3e2w1q!", "5t4r3e2w1q!");
 
-        this.mockMvc.perform(post("/api/auth/update-password")
+        this.mockMvc.perform(put("/api/auth/update-password")
                         .contentType(MediaType.APPLICATION_JSON + ";charset=UTF-8")
                         .accept(MediaType.APPLICATION_JSON + ";charset=UTF-8")
                         .content(this.objectMapper.writeValueAsString(requestDto)))

@@ -75,7 +75,7 @@ public class AuthController {
         return ResponseEntity.ok(apiResponse);
     }
 
-    @PostMapping("/update-password")
+    @PutMapping("/update-password")
     public ResponseEntity<SuccessCommonApiResponse> updatePassword(@Valid @RequestBody MemberUpdatePasswordRequestDto requestDto) {
         this.authService.updatePassword(requestDto);
 
