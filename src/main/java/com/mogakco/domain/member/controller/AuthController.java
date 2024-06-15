@@ -74,4 +74,13 @@ public class AuthController {
 
         return ResponseEntity.ok(apiResponse);
     }
+
+    @PostMapping("/update-password")
+    public ResponseEntity<SuccessCommonApiResponse> updatePassword(@Valid @RequestBody MemberUpdatePasswordRequestDto requestDto) {
+        this.authService.updatePassword(requestDto);
+
+        SuccessCommonApiResponse apiResponse = SuccessCommonApiResponse.of("비밀번호가 정상적으로 변경되었습니다.");
+
+        return ResponseEntity.ok(apiResponse);
+    }
 }

@@ -133,6 +133,19 @@ public class AuthService {
         redirectToUrl(clientHost + "/auth/update-password?certificationNumber=" + this.redisUtil.getData(requestDto.email()) + "&email=" + requestDto.email(), response);
     }
 
+    @Transactional
+    public void updatePassword(MemberUpdatePasswordRequestDto requestDto) {
+        Member member = this.memberRepository.findByEmail(requestDto.email()).orElseThrow(() -> new BusinessException("유효하지 않은 랑크입니다. url을 다시 확인해주세요."));
+
+        if (!this.redisUtil.getData(requestDto.email()).equals(requestDto.certificationNumber())) {
+            throw new BusinessException("유효하지 않은 링크입니다. url을 다시 확인해주세요.");
+        }
+
+        requestDto.validatePasswordAndConfirmPassword();
+
+        member.updatePassword(this.passwordEncoder.encode(requestDto.password()));
+    }
+
     /**
      * url redirect
      * @param url
@@ -158,6 +171,10 @@ public class AuthService {
         sendVerificationEmail(emailMessage);
     }
 
+    /**
+     * 이메일 전송 로직
+     * @param emailMessage
+     */
     private void sendVerificationEmail(EmailMessage emailMessage) {
         emailService.sendEmail(emailMessage);
     }
