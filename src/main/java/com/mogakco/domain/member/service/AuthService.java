@@ -1,8 +1,10 @@
 package com.mogakco.domain.member.service;
 
 import com.mogakco.domain.member.entity.Member;
+import com.mogakco.domain.member.model.request.MemberFindEmailRequestDto;
 import com.mogakco.domain.member.model.request.MemberLoginRequestDto;
 import com.mogakco.domain.member.model.request.MemberSignupRequestDto;
+import com.mogakco.domain.member.model.response.MemberFindEmailResponseDto;
 import com.mogakco.domain.member.repository.MemberRepository;
 import com.mogakco.global.exception.custom.BusinessException;
 import com.mogakco.global.util.jwt.JwtTokenProvider;
@@ -70,6 +72,10 @@ public class AuthService {
         deleteCookie(REFRESH_TOKEN_INITIAL, response);
 
         SecurityContextHolder.clearContext();
+    }
+
+    public MemberFindEmailResponseDto findEmail(MemberFindEmailRequestDto requestDto) {
+        return this.memberRepository.findEmailByPhoneNumber(requestDto.phoneNumber()).orElseThrow(() -> new BusinessException("입력된 휴대전화번호는 등록되지 않은 번호입니다."));
     }
 
     /**
