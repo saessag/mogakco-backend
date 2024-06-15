@@ -45,7 +45,7 @@ public class SecurityConfig {
 
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
-    public static final List<String> WHITE_LIST = Arrays.asList("/api/auth/signup", "/api/auth/login", "/api/auth/find-email", "/api/auth/verify-credentials");
+    public static final List<String> WHITE_LIST = Arrays.asList("/api/auth/signup", "/api/auth/login", "/api/auth/find-email", "/api/auth/verify-credentials", "api/auth/verify-email-link");
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {

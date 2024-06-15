@@ -54,7 +54,8 @@ cors:
   origin: "http://localhost:3000"
 app:
   host:
-    server: localhost:8080
+    server: http://localhost:8080
+    client: http://localhost:3000
 ---
 spring:
   config:

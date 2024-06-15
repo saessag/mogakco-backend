@@ -1,10 +1,7 @@
 package com.mogakco.domain.member.service;
 
 import com.mogakco.domain.member.entity.Member;
-import com.mogakco.domain.member.model.request.MemberFindEmailRequestDto;
-import com.mogakco.domain.member.model.request.MemberLoginRequestDto;
-import com.mogakco.domain.member.model.request.MemberSignupRequestDto;
-import com.mogakco.domain.member.model.request.MemberVerifyCredentialsRequestDto;
+import com.mogakco.domain.member.model.request.*;
 import com.mogakco.domain.member.model.response.MemberFindEmailResponseDto;
 import com.mogakco.domain.member.repository.MemberRepository;
 import com.mogakco.global.exception.custom.BusinessException;
@@ -15,6 +12,7 @@ import com.mogakco.global.util.random.RandomCertificationNumberGenerator;
 import com.mogakco.global.util.redis.RedisUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -33,6 +31,7 @@ import static com.mogakco.global.util.cookie.CookieUtil.setCookie;
 import static com.mogakco.global.util.jwt.JwtTokenProvider.*;
 import static org.springframework.http.HttpHeaders.SET_COOKIE;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -54,6 +53,9 @@ public class AuthService {
 
     @Value("${app.host.server}")
     private String serverHost;
+
+    @Value("${app.host.client}")
+    private String clientHost;
 
     /**
      * 회원가입 로직
@@ -117,6 +119,37 @@ public class AuthService {
         CompletableFuture.runAsync(() -> sendVerificationEmailAsync(requestDto));
     }
 
+    /**
+     * 이메일 링크 확인 비즈니스 로직
+     * @param requestDto
+     * @param response
+     */
+    public void verifyEmailLink(MemberVerifyEmailLinkRequestDto requestDto, HttpServletResponse response) {
+        if (!this.memberRepository.existsByEmail(requestDto.email()) ||
+                !this.redisUtil.getData(requestDto.email()).equals(requestDto.certificationNumber())) {
+            throw new BusinessException("유효하지 않는 링크입니다.\n이메일 링크 전송을 다시해주세요.");
+        }
+
+        redirectToUrl(clientHost + "/auth/update-password?certificationNumber=" + this.redisUtil.getData(requestDto.email()) + "&email=" + requestDto.email(), response);
+    }
+
+    /**
+     * url redirect
+     * @param url
+     * @param response
+     */
+    private void redirectToUrl(String url, HttpServletResponse response) {
+        try {
+            response.sendRedirect(url);
+        } catch (Exception e) {
+            log.error("redirect url failed ", e);
+        }
+    }
+
+    /**
+     * 인증코드 & 이메일 폼 생성 및 이메일 전송 비동기 로직
+     * @param requestDto
+     */
     @Async(value = "mailExecutor")
     public void sendVerificationEmailAsync(MemberVerifyCredentialsRequestDto requestDto) {
         String certificationNumber = generateAndSetCertificationNumber(requestDto);
@@ -138,7 +171,7 @@ public class AuthService {
     private EmailMessage prepareEmailMessage(MemberVerifyCredentialsRequestDto requestDto, String certificationNumber) {
         Context context = new Context();
 
-        context.setVariable("link", "/api/auth/verify-email-link?certificationNumber=" + certificationNumber + "&amp;email=" + requestDto.email());
+        context.setVariable("link", "/api/auth/verify-email-link?certificationNumber=" + certificationNumber + "&email=" + requestDto.email());
         context.setVariable("title", "비밀번호 변경링크입니다.");
         context.setVariable("message", "비밀번호 변경버튼을 눌러 비밀번호를 변경해주세요.");
         context.setVariable("host", serverHost);

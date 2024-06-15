@@ -1,9 +1,6 @@
 package com.mogakco.domain.member.controller;
 
-import com.mogakco.domain.member.model.request.MemberFindEmailRequestDto;
-import com.mogakco.domain.member.model.request.MemberLoginRequestDto;
-import com.mogakco.domain.member.model.request.MemberSignupRequestDto;
-import com.mogakco.domain.member.model.request.MemberVerifyCredentialsRequestDto;
+import com.mogakco.domain.member.model.request.*;
 import com.mogakco.domain.member.model.response.MemberFindEmailResponseDto;
 import com.mogakco.domain.member.service.AuthService;
 import com.mogakco.global.response.success.SuccessCommonApiResponse;
@@ -12,10 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 
@@ -68,6 +62,15 @@ public class AuthController {
         this.authService.verifyCredentials(requestDto);
 
         SuccessCommonApiResponse apiResponse = SuccessCommonApiResponse.of("이메일이 정상적으로 전송되었습니다.");
+
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @GetMapping("/verify-email-link")
+    public ResponseEntity<SuccessCommonApiResponse> verifyEmailLink(@Valid MemberVerifyEmailLinkRequestDto requestDto, HttpServletResponse response) {
+        this.authService.verifyEmailLink(requestDto, response);
+
+        SuccessCommonApiResponse apiResponse = SuccessCommonApiResponse.of("이메 인증이 완료되었습니다.");
 
         return ResponseEntity.ok(apiResponse);
     }
