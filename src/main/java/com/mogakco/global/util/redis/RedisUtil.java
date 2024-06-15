@@ -25,7 +25,7 @@ public class RedisUtil {
         this.stringRedisTemplate.delete(key);
     }
 
-    public void deleteAllData(String key) {
+    public void deleteAllData() {
         Objects.requireNonNull(this.stringRedisTemplate.getConnectionFactory()).getConnection().serverCommands().flushAll();
     }
 
