@@ -4,16 +4,29 @@ import com.mogakco.domain.member.entity.Member;
 import com.mogakco.domain.member.model.request.MemberFindEmailRequestDto;
 import com.mogakco.domain.member.model.request.MemberLoginRequestDto;
 import com.mogakco.domain.member.model.request.MemberSignupRequestDto;
+import com.mogakco.domain.member.model.request.MemberVerifyCredentialsRequestDto;
 import com.mogakco.domain.member.model.response.MemberFindEmailResponseDto;
 import com.mogakco.domain.member.repository.MemberRepository;
 import com.mogakco.global.exception.custom.BusinessException;
 import com.mogakco.global.util.jwt.JwtTokenProvider;
+import com.mogakco.global.util.mail.model.EmailMessage;
+import com.mogakco.global.util.mail.service.EmailService;
+import com.mogakco.global.util.random.RandomCertificationNumberGenerator;
+import com.mogakco.global.util.redis.RedisUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
+
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.concurrent.CompletableFuture;
 
 import static com.mogakco.global.util.cookie.CookieUtil.deleteCookie;
 import static com.mogakco.global.util.cookie.CookieUtil.setCookie;
@@ -30,6 +43,17 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
 
     private final JwtTokenProvider jwtTokenProvider;
+
+    private final RandomCertificationNumberGenerator randomCertificationNumberGenerator;
+
+    private final RedisUtil redisUtil;
+
+    private final EmailService emailService;
+
+    private final TemplateEngine templateEngine;
+
+    @Value("${app.host.server}")
+    private String serverHost;
 
     /**
      * 회원가입 로직
@@ -74,8 +98,81 @@ public class AuthService {
         SecurityContextHolder.clearContext();
     }
 
+    /**
+     * 이메일 찾기 기능 비즈니스 로직
+     * @param requestDto
+     * @return
+     */
     public MemberFindEmailResponseDto findEmail(MemberFindEmailRequestDto requestDto) {
         return this.memberRepository.findEmailByPhoneNumber(requestDto.phoneNumber()).orElseThrow(() -> new BusinessException("입력된 휴대전화번호는 등록되지 않은 번호입니다."));
+    }
+
+    /**
+     * 이메일을 통한 본인 인증 및 이메일 전송 로직
+     * @param requestDto
+     */
+    public void verifyCredentials(MemberVerifyCredentialsRequestDto requestDto) {
+        verifyMemberEmail(requestDto);
+
+        CompletableFuture.runAsync(() -> sendVerificationEmailAsync(requestDto));
+    }
+
+    @Async(value = "mailExecutor")
+    public void sendVerificationEmailAsync(MemberVerifyCredentialsRequestDto requestDto) {
+        String certificationNumber = generateAndSetCertificationNumber(requestDto);
+        EmailMessage emailMessage = prepareEmailMessage(requestDto, certificationNumber);
+
+        sendVerificationEmail(emailMessage);
+    }
+
+    private void sendVerificationEmail(EmailMessage emailMessage) {
+        emailService.sendEmail(emailMessage);
+    }
+
+    /**
+     * 이메일 폼 생성 로직
+     * @param requestDto
+     * @param certificationNumber
+     * @return
+     */
+    private EmailMessage prepareEmailMessage(MemberVerifyCredentialsRequestDto requestDto, String certificationNumber) {
+        Context context = new Context();
+
+        context.setVariable("link", "/api/auth/verify-email-link?certificationNumber=" + certificationNumber + "&amp;email=" + requestDto.email());
+        context.setVariable("title", "비밀번호 변경링크입니다.");
+        context.setVariable("message", "비밀번호 변경버튼을 눌러 비밀번호를 변경해주세요.");
+        context.setVariable("host", serverHost);
+        context.setVariable("year", LocalDate.now(ZoneId.of("Asia/Seoul")).getYear());
+
+        String message = this.templateEngine.process("mail/verify-email", context);
+
+        return EmailMessage.builder()
+                .to(requestDto.email())
+                .subject("[MOGAKCO] 비밀번호 변경 링크입니다.")
+                .message(message)
+                .build();
+    }
+
+    /**
+     * 인증코드 생성 로직
+     * @param requestDto
+     * @return
+     */
+    private String generateAndSetCertificationNumber(MemberVerifyCredentialsRequestDto requestDto) {
+        String certificationNumber = this.randomCertificationNumberGenerator.getCertificationNumber();
+        this.redisUtil.setData(requestDto.email(), certificationNumber, 5L);
+
+        return certificationNumber;
+    }
+
+    /**
+     * 이메일 유효성 검사
+     * @param requestDto
+     */
+    private void verifyMemberEmail(MemberVerifyCredentialsRequestDto requestDto) {
+        if (!this.memberRepository.existsByEmail(requestDto.email())) {
+            throw new BusinessException("등록되지 않은 이메일입니다.\n이메일 찾기를 통하여 이메일을 확인해주세요.");
+        }
     }
 
     /**

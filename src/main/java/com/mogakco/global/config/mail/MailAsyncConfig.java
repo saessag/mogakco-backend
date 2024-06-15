@@ -25,7 +25,10 @@ public class MailAsyncConfig implements AsyncConfigurer, SchedulingConfigurer {
 
     @Override
     public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
-        return AsyncConfigurer.super.getAsyncUncaughtExceptionHandler();
+        return (ex, method, params) -> {
+            log.error("Exception Message - {}", ex.getMessage());
+            log.error("Method Name - {}", method.getName());
+        };
     }
 
     @Override

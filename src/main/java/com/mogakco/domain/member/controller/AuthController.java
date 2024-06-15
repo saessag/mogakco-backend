@@ -3,6 +3,7 @@ package com.mogakco.domain.member.controller;
 import com.mogakco.domain.member.model.request.MemberFindEmailRequestDto;
 import com.mogakco.domain.member.model.request.MemberLoginRequestDto;
 import com.mogakco.domain.member.model.request.MemberSignupRequestDto;
+import com.mogakco.domain.member.model.request.MemberVerifyCredentialsRequestDto;
 import com.mogakco.domain.member.model.response.MemberFindEmailResponseDto;
 import com.mogakco.domain.member.service.AuthService;
 import com.mogakco.global.response.success.SuccessCommonApiResponse;
@@ -60,5 +61,14 @@ public class AuthController {
         SuccessSingleApiResponse<MemberFindEmailResponseDto> response = SuccessSingleApiResponse.of("이메일 찾기가 정상적으로 처리되었습니다.", responseDto);
 
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/verify-credentials")
+    public ResponseEntity<SuccessCommonApiResponse> verifyCredentials(@Valid @RequestBody MemberVerifyCredentialsRequestDto requestDto) {
+        this.authService.verifyCredentials(requestDto);
+
+        SuccessCommonApiResponse apiResponse = SuccessCommonApiResponse.of("이메일이 정상적으로 전송되었습니다.");
+
+        return ResponseEntity.ok(apiResponse);
     }
 }
