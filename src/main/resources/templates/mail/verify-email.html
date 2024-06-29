@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title>비밀번호 변경 링크 안내</title>
+</head>
+<body style="margin: 0; padding: 0;">
+<header class="header" style="max-width: 600px; margin: auto; font-family: Arial, sans-serif;">
+  <div class="title" style="text-align: center; padding: 20px;">
+    <h3>MOGAKCO</h3>
+  </div>
+</header>
+<section class="section" style="background-color: #f0f0f0; padding: 20px; text-align: center;">
+  <h1 style="margin: 20px 0;" th:text="${title}">비밀번호 변경 링크입니다.</h1>
+  <h3 style="margin: 20px 0;" th:text="${message}">비밀번호 변경하기 버튼을 눌러 비밀번호를 변경해주세요.</h3>
+  <a style="display: inline-block; background-color: #4caf50; color: white; padding: 10px 20px; text-decoration: none; margin-top: 20px;"
+     class="link" href="#" th:href="${host + link}">비밀번호 변경하기</a>
+</section>
+<footer style="text-align: center; padding: 10px;" class="footer">
+  <small>MOGAKCO&copy; <span th:text="${year}"></span></small>
+</footer>
+</body>
+</html>

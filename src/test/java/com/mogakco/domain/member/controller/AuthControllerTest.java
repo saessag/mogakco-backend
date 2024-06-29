@@ -1,16 +1,17 @@
 package com.mogakco.domain.member.controller;
 
-import com.mogakco.domain.member.model.request.MemberFindEmailRequestDto;
-import com.mogakco.domain.member.model.request.MemberLoginRequestDto;
-import com.mogakco.domain.member.model.request.MemberSignupRequestDto;
+import com.mogakco.domain.member.model.request.*;
 import com.mogakco.global.controller.BaseControllerTest;
 import com.mogakco.global.exception.GlobalExceptionCode;
+import com.mogakco.global.util.redis.RedisUtil;
 import jakarta.servlet.http.Cookie;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
 import java.time.LocalDate;
@@ -20,13 +21,19 @@ import static com.mogakco.global.util.TestAuthUtil.performLoginAndGetCookies;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.startsWith;
 import static org.springframework.http.HttpHeaders.SET_COOKIE;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 class AuthControllerTest extends BaseControllerTest {
 
+    @Autowired
+    private RedisUtil redisUtil;
 
+    @AfterEach
+    void after() {
+        this.redisUtil.deleteAllData();
+    }
 
     @Test
     @DisplayName("회원가입 통합 테스트 - 실패(잘못된 입력값)")
@@ -225,6 +232,231 @@ class AuthControllerTest extends BaseControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("message").exists())
                 .andExpect(jsonPath("data.email").exists());
+    }
+
+    @Test
+    @DisplayName("비밀번호 찾기(회원 인증) 통합 테스트 - 실패(잘못된 입력 값)")
+    void member_verify_credentials_integration_test_fail_caused_by_wrong_input() throws Exception {
+        MemberVerifyCredentialsRequestDto requestDto = new MemberVerifyCredentialsRequestDto("email...");
+
+        this.mockMvc.perform(post("/api/auth/verify-credentials")
+                        .contentType(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+                        .accept(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+                        .content(this.objectMapper.writeValueAsString(requestDto)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message").exists())
+                .andExpect(jsonPath("status").value(GlobalExceptionCode.INVALID_REQUEST_PARAMETER.getHttpStatus().name()))
+                .andExpect(jsonPath("code").value(GlobalExceptionCode.INVALID_REQUEST_PARAMETER.getCode()))
+                .andExpect(jsonPath("errors").exists())
+                .andExpect(jsonPath("errors").isNotEmpty())
+                .andExpect(jsonPath("timestamp").exists());
+    }
+
+    @Test
+    @DisplayName("비밀번호 찾기(회원 인증) 통합 테스트 - 실패(잘못된 이메일)")
+    void member_verify_credentials_integration_test_fail_caused_by_wrong_email() throws Exception {
+        MemberVerifyCredentialsRequestDto requestDto = new MemberVerifyCredentialsRequestDto("email@email.com");
+
+        this.mockMvc.perform(post("/api/auth/verify-credentials")
+                        .contentType(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+                        .accept(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+                        .content(this.objectMapper.writeValueAsString(requestDto)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message").exists())
+                .andExpect(jsonPath("status").value(GlobalExceptionCode.INVALID_REQUEST_PARAMETER.getHttpStatus().name()))
+                .andExpect(jsonPath("code").value(GlobalExceptionCode.INVALID_REQUEST_PARAMETER.getCode()))
+                .andExpect(jsonPath("timestamp").exists());
+    }
+
+    @Test
+    @DisplayName("비밀번호 찾기(회원 인증) 통합 테스트 - 성공")
+    void member_verify_credentials_integration_test_success() throws Exception {
+        MemberVerifyCredentialsRequestDto requestDto = new MemberVerifyCredentialsRequestDto("test@email.com");
+
+        this.mockMvc.perform(post("/api/auth/verify-credentials")
+                        .contentType(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+                        .accept(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+                        .content(this.objectMapper.writeValueAsString(requestDto)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("message").exists());
+    }
+
+    @Test
+    @DisplayName("비밀번호 찾기(이메일 인증) 통합 테스트 - 실패(잘못된 입력 값)")
+    void member_verify_email_link_integration_test_fail_caused_by_wrong_input() throws Exception {
+        this.redisUtil.setData("test@email.com", "123456", 5);
+
+        MemberVerifyEmailLinkRequestDto requestDto = new MemberVerifyEmailLinkRequestDto("", "email...");
+
+        this.mockMvc.perform(get("/api/auth/verify-email-link")
+                        .param("certificationNumber", requestDto.certificationNumber())
+                        .param("email", requestDto.email())
+                        .contentType(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+                        .accept(MediaType.APPLICATION_JSON + ";charset=UTF-8"))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message").exists())
+                .andExpect(jsonPath("status").value(GlobalExceptionCode.INVALID_REQUEST_PARAMETER.getHttpStatus().name()))
+                .andExpect(jsonPath("code").value(GlobalExceptionCode.INVALID_REQUEST_PARAMETER.getCode()))
+                .andExpect(jsonPath("errors").exists())
+                .andExpect(jsonPath("errors").isNotEmpty())
+                .andExpect(jsonPath("timestamp").exists());
+    }
+
+    @Test
+    @DisplayName("비밀번호 찾기(이메일 인증) 통합 테스트 - 실패(유효하지 않은 이메일)")
+    void member_verify_email_link_integration_test_fail_caused_by_invalid_email() throws Exception {
+        this.redisUtil.setData("test@email.com", "123456", 5);
+
+        MemberVerifyEmailLinkRequestDto requestDto = new MemberVerifyEmailLinkRequestDto("123456", "email@email.com");
+
+        this.mockMvc.perform(get("/api/auth/verify-email-link")
+                        .param("certificationNumber", requestDto.certificationNumber())
+                        .param("email", requestDto.email())
+                        .contentType(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+                        .accept(MediaType.APPLICATION_JSON + ";charset=UTF-8"))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message").exists())
+                .andExpect(jsonPath("status").value(GlobalExceptionCode.INVALID_REQUEST_PARAMETER.getHttpStatus().name()))
+                .andExpect(jsonPath("code").value(GlobalExceptionCode.INVALID_REQUEST_PARAMETER.getCode()))
+                .andExpect(jsonPath("timestamp").exists());
+    }
+
+    @Test
+    @DisplayName("비밀번호 찾기(이메일 인증) 통합 테스트 - 실패(유효하지 않은 인증코드)")
+    void member_verify_email_link_integration_test_fail_caused_by_invalid_certification_number() throws Exception {
+        this.redisUtil.setData("test@email.com", "123456", 5);
+
+        MemberVerifyEmailLinkRequestDto requestDto = new MemberVerifyEmailLinkRequestDto("654321", "test@email.com");
+
+        this.mockMvc.perform(get("/api/auth/verify-email-link")
+                        .param("certificationNumber", requestDto.certificationNumber())
+                        .param("email", requestDto.email())
+                        .contentType(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+                        .accept(MediaType.APPLICATION_JSON + ";charset=UTF-8"))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message").exists())
+                .andExpect(jsonPath("status").value(GlobalExceptionCode.INVALID_REQUEST_PARAMETER.getHttpStatus().name()))
+                .andExpect(jsonPath("code").value(GlobalExceptionCode.INVALID_REQUEST_PARAMETER.getCode()))
+                .andExpect(jsonPath("timestamp").exists());
+    }
+
+    @Test
+    @DisplayName("비밀번호 찾기(이메일 인증) 통합 테스트 - 성공")
+    void member_verify_email_link_integration_test_success() throws Exception {
+        this.redisUtil.setData("test@email.com", "123456", 5);
+
+        MemberVerifyEmailLinkRequestDto requestDto = new MemberVerifyEmailLinkRequestDto("123456", "test@email.com");
+
+        this.mockMvc.perform(get("/api/auth/verify-email-link")
+                        .param("certificationNumber", requestDto.certificationNumber())
+                        .param("email", requestDto.email())
+                        .contentType(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+                        .accept(MediaType.APPLICATION_JSON + ";charset=UTF-8"))
+                .andDo(print())
+                .andExpect(status().is3xxRedirection())
+                .andExpect(jsonPath("message").exists())
+                .andExpect(redirectedUrl("http://localhost:3000/auth/update-password?certificationNumber=" + requestDto.certificationNumber() + "&email=" + requestDto.email()));
+    }
+
+    @Test
+    @DisplayName("비밀번호 찾기(비밀번호 변경) 통합 테스트 - 실패(잘못된 입력값)")
+    void member_update_password_integration_test_fail_caused_by_wrong_input() throws Exception {
+        this.redisUtil.setData("test@email.com", "123456", 5);
+
+        MemberUpdatePasswordRequestDto requestDto = new MemberUpdatePasswordRequestDto("", "email...", "1234", "12");
+
+        this.mockMvc.perform(put("/api/auth/update-password")
+                        .contentType(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+                        .accept(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+                        .content(this.objectMapper.writeValueAsString(requestDto)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message").exists())
+                .andExpect(jsonPath("status").value(GlobalExceptionCode.INVALID_REQUEST_PARAMETER.getHttpStatus().name()))
+                .andExpect(jsonPath("code").value(GlobalExceptionCode.INVALID_REQUEST_PARAMETER.getCode()))
+                .andExpect(jsonPath("errors").exists())
+                .andExpect(jsonPath("errors").isNotEmpty())
+                .andExpect(jsonPath("timestamp").exists());
+    }
+
+    @Test
+    @DisplayName("비밀번호 찾기(비밀번호 변경) 통합 테스트 - 실패(잘못된 이메일)")
+    void member_update_password_integration_test_fail_caused_by_wrong_email() throws Exception {
+        this.redisUtil.setData("test@email.com", "123456", 5);
+
+        MemberUpdatePasswordRequestDto requestDto = new MemberUpdatePasswordRequestDto("123456", "email@email.com", "5t4r3e2w1q!", "5t4r3e2w1q!");
+
+        this.mockMvc.perform(put("/api/auth/update-password")
+                        .contentType(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+                        .accept(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+                        .content(this.objectMapper.writeValueAsString(requestDto)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message").exists())
+                .andExpect(jsonPath("status").value(GlobalExceptionCode.INVALID_REQUEST_PARAMETER.getHttpStatus().name()))
+                .andExpect(jsonPath("code").value(GlobalExceptionCode.INVALID_REQUEST_PARAMETER.getCode()))
+                .andExpect(jsonPath("timestamp").exists());
+    }
+
+    @Test
+    @DisplayName("비밀번호 찾기(비밀번호 변경) 통합 테스트 - 실패(잘못된 인증코드)")
+    void member_update_password_integration_test_fail_caused_by_wrong_certification_number() throws Exception {
+        this.redisUtil.setData("test@email.com", "123456", 5);
+
+        MemberUpdatePasswordRequestDto requestDto = new MemberUpdatePasswordRequestDto("123454", "test@email.com", "5t4r3e2w1q!", "5t4r3e2w1q!");
+
+        this.mockMvc.perform(put("/api/auth/update-password")
+                        .contentType(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+                        .accept(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+                        .content(this.objectMapper.writeValueAsString(requestDto)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message").exists())
+                .andExpect(jsonPath("status").value(GlobalExceptionCode.INVALID_REQUEST_PARAMETER.getHttpStatus().name()))
+                .andExpect(jsonPath("code").value(GlobalExceptionCode.INVALID_REQUEST_PARAMETER.getCode()))
+                .andExpect(jsonPath("timestamp").exists());
+    }
+
+    @Test
+    @DisplayName("비밀번호 찾기(비밀번호 변경) 통합 테스트 - 실패(비밀번호와 비밀번호(확인) 불일치)")
+    void member_update_password_integration_test_fail_caused_by_not_equals_password_confirm_password() throws Exception {
+        this.redisUtil.setData("test@email.com", "123456", 5);
+
+        MemberUpdatePasswordRequestDto requestDto = new MemberUpdatePasswordRequestDto("123456", "test@email.com", "5t4r3e2w1q!", "5t4r3e2w1q@");
+
+        this.mockMvc.perform(put("/api/auth/update-password")
+                        .contentType(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+                        .accept(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+                        .content(this.objectMapper.writeValueAsString(requestDto)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message").exists())
+                .andExpect(jsonPath("status").value(GlobalExceptionCode.INVALID_REQUEST_PARAMETER.getHttpStatus().name()))
+                .andExpect(jsonPath("code").value(GlobalExceptionCode.INVALID_REQUEST_PARAMETER.getCode()))
+                .andExpect(jsonPath("timestamp").exists());
+    }
+
+    @Test
+    @DisplayName("비밀번호 찾기(비밀번호 변경) 통합 테스트 - 성공")
+    void member_update_password_integration_test_success() throws Exception {
+        this.redisUtil.setData("test@email.com", "123456", 5);
+
+        MemberUpdatePasswordRequestDto requestDto = new MemberUpdatePasswordRequestDto("123456", "test@email.com", "5t4r3e2w1q!", "5t4r3e2w1q!");
+
+        this.mockMvc.perform(put("/api/auth/update-password")
+                        .contentType(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+                        .accept(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+                        .content(this.objectMapper.writeValueAsString(requestDto)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("message").exists());
     }
 
     private static Stream<Arguments> providedTestDataForSignup() {

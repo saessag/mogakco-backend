@@ -85,4 +85,8 @@ public class Member extends BaseDateTimeEntity {
         this.role = Role.GUEST;
         this.profile = Profile.builder().build();
     }
+
+    public void updatePassword(String newPassword) {
+        this.password = newPassword;
+    }
 }

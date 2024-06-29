@@ -23,6 +23,24 @@ spring:
     console:
       enabled: true
       path: /h2-console
+  data:
+    redis:
+      auth:
+        host: localhost
+        port: 6379
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${EMAIL_USERNAME}
+    password: ${EMAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          timeout: 5000
+          starttls:
+            enable: true
+            required: true
 logging:
   level:
     org.hibernate:
@@ -30,6 +48,10 @@ logging:
         descriptor.sql: trace
 cors:
   origin: "http://localhost:3000"
+app:
+  host:
+    server: http://localhost:8080
+    client: http://localhost:3000
 ---
 spring:
   config:
