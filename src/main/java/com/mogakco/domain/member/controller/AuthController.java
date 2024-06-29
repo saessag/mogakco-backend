@@ -70,7 +70,7 @@ public class AuthController {
     public ResponseEntity<SuccessCommonApiResponse> verifyEmailLink(@Valid MemberVerifyEmailLinkRequestDto requestDto, HttpServletResponse response) {
         this.authService.verifyEmailLink(requestDto, response);
 
-        SuccessCommonApiResponse apiResponse = SuccessCommonApiResponse.of("이메 인증이 완료되었습니다.");
+        SuccessCommonApiResponse apiResponse = SuccessCommonApiResponse.of("이메일 인증이 완료되었습니다.");
 
         return ResponseEntity.ok(apiResponse);
     }

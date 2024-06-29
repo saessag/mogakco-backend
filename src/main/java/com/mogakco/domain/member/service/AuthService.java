@@ -135,13 +135,17 @@ public class AuthService {
 
     @Transactional
     public void updatePassword(MemberUpdatePasswordRequestDto requestDto) {
-        Member member = this.memberRepository.findByEmail(requestDto.email()).orElseThrow(() -> new BusinessException("유효하지 않은 랑크입니다. url을 다시 확인해주세요."));
+        Member member = this.memberRepository.findByEmail(requestDto.email()).orElseThrow(() -> new BusinessException("유효하지 않은 링크입니다. url을 다시 확인해주세요."));
 
         if (!this.redisUtil.getData(requestDto.email()).equals(requestDto.certificationNumber())) {
             throw new BusinessException("유효하지 않은 링크입니다. url을 다시 확인해주세요.");
         }
 
         requestDto.validatePasswordAndConfirmPassword();
+
+        if (passwordEncoder.matches(requestDto.password(), member.getPassword())) {
+            throw new BusinessException("기존에 등록한 비밀번호와 일치합니다.");
+        }
 
         member.updatePassword(this.passwordEncoder.encode(requestDto.password()));
     }
